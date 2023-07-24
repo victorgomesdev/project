@@ -30,6 +30,13 @@ class Request {// Classe usada para representar todas as requisições feitas à
 
                 Login::sign($this->data['email'], $this->data['password']);
             }
+
+            case 'PUBLISH_ARTICLE':{
+
+                $article = new Article($this->data['title'], $this->data['author'], $this->data['body'], $this->data['refer']);
+
+                $article->publish();
+            }
         }
     }
 }
