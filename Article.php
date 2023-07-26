@@ -1,7 +1,7 @@
 <?php
 
 class Article
-{
+{ // Fazer o tratamento dos possíveis erros que podem ocorrer nas queries
 
     private string $title;
     private string $author;
@@ -14,7 +14,7 @@ class Article
         $this->title = $title;
         $this->author = $author;
         $this->body = $body;
-        $this->created_at = date('d-m-Y');
+        $this->created_at = date(DATE_RFC822);
         $this->refer = $refer;
     }
 
@@ -37,22 +37,16 @@ class Article
         $query = "INSERT INTO articles(title, author, body, created_at, refer, alter_at) VALUES(?,?,?,?,?,?);";
 
         try {
-
             $conn = new mysqli(Connection::$host, Connection::$user, Connection::$password, Connection::$database);
             $execution = $conn->prepare($query);
             $execution->bind_param('ssssss', $this->title, $this->author, $this->body, $this->created_at, $this->refer, $this->created_at);
             $execution->execute();
-            $result = $execution->error;
 
-            if ($result) {
-                $conn->close();
-                Response::send(200, ['message' => 'Ocorreu um erro']);
-            } else {
-                $conn->close();
-                Response::send(200, ['message' => 'Artigo adicionado']);
-            }
+            $conn->close();
+            Response::send(200, ['message' => 'Artigo publicado com sucesso.']);
         } catch (Exception $err) {
-            Response::send(200, [$err]);
+            $conn->close();
+            Response::send(200, ['message' => 'O titulo já está em uso.']);
         }
     }
 
@@ -60,7 +54,7 @@ class Article
     {
 
         $query = "UPDATE articles SET $field = ?, alter_at = ? WHERE author = ? AND title = ?;";
-        $alter = date('d-m-Y');
+        $alter = date(DATE_RFC822);
         try {
 
             $conn = new mysqli(Connection::$host, Connection::$user, Connection::$password, Connection::$database);
@@ -68,18 +62,16 @@ class Article
             $execution->bind_param('ssss', $new_content, $alter, $author, $title);
             $execution->execute();
 
-            $result = $execution->error;
-
-            if ($result) {
+            if ($execution->affected_rows > 0) {
                 $conn->close();
-                Response::send(200, ['message' => 'Ocorreu um erro']);
+                Response::send(200, ['message' => 'Alteração feita com sucesso.']);
             } else {
-
                 $conn->close();
-                Response::send(200, ['message' => 'Alteração feita com sucesso']);
+                Response::send(200, ['message' => 'Nenhum artigo encontrado, verifique os dados informados.']);
             }
         } catch (Exception $err) {
-            echo $err;
+            $conn->close();
+            Response::send(200, ['message' => 'Ocorreu um erro, verifique os dados informados.']);
         }
     }
 
@@ -93,18 +85,17 @@ class Article
             $execution = $conn->prepare($query);
             $execution->bind_param('ss', $title, $author);
             $execution->execute();
-            $result = $execution->error;
 
-            if ($result) {
-                $conn->close();
-                Response::send(200, ['message' => 'Ocorreu um erro']);
-            } else {
-
+            if ($execution->affected_rows > 0) {
                 $conn->close();
                 Response::send(200, ['message' => 'Artigo excluído']);
+            } else {
+                $conn->close();
+                Response::send(200, ['message' => 'Nenhum artigo encontrado, verifique os dados informados.']);
             }
         } catch (Exception $err) {
-            echo $err;
+            $conn->close();
+            Response::send(200, ['message' => 'Ocorreu um erro, verifique os dados informados.']);
         }
     }
 }
