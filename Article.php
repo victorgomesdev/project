@@ -50,16 +50,15 @@ class Article
         }
     }
 
-    public static function alter(string $title, string $author, string $new_content, string $field)
+    public static function alter(string $title, string $author, string $body, string $refer)
     {
-
-        $query = "UPDATE articles SET $field = ?, alter_at = ? WHERE author = ? AND title = ?;";
+        $query = "UPDATE articles SET title = ?, author = ?, body = ?, refer = ?, alter_at = ? WHERE title = ? AND author = ?;";
         $alter = date(DATE_RFC822);
         try {
 
             $conn = new mysqli(Connection::$host, Connection::$user, Connection::$password, Connection::$database);
             $execution = $conn->prepare($query);
-            $execution->bind_param('ssss', $new_content, $alter, $author, $title);
+            $execution->bind_param('sssssss', $title, $author, $body, $refer, $alter, $title, $author);
             $execution->execute();
 
             if ($execution->affected_rows > 0) {

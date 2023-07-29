@@ -21,7 +21,7 @@ class User
         $this->admin = $admin;
         $this->address = $address;
         $this->phone = $phone;
-        $this->id = hash('sha1', $this->name);
+        $this->id = hash('sha1', $this->email);
         $this->crated_at = date(DATE_RFC822);
     }
 
@@ -36,36 +36,64 @@ class User
             'address' => $this->address,
             'phone' => $this->phone,
             'created_at' => $this->crated_at,
-            'id'=> $this->id
+            'id' => $this->id
         ];
 
         return $data;
     }
 
-    public static function update_data(string $email, string $field, string $new_content){
+    public static function update_data(string $name, int $age, string $email, string $password, bool $admin, string $address, string $phone)
+    {
 
-        $query = "UPDATE users SET $field = ? WHERE email = ?;";
-
-        try{
+        $query = "UPDATE users SET name = ?, age = ?, password = ?, admin = ?, address = ?, phone = ? WHERE email = ?;";
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        try {
 
             $conn = new mysqli(Connection::$host, Connection::$user, Connection::$password, Connection::$database);
             $execution = $conn->prepare($query);
-            $execution->bind_param('ss', $new_content, $email);
+            $execution->bind_param('sssssss', $name, $age, $hashed_password, $admin, $address, $phone, $email);
             $execution->execute();
 
-            if($execution->affected_rows > 0){
+            if ($execution->affected_rows > 0) {
 
                 $conn->close();
                 Response::send(200, ['message' => 'Dados do perfil atualizados.']);
-            }else{
+            } else {
 
                 $conn->close();
                 Response::send(200, ['message' => 'Não foi encontrado nenhum usuário, verifique os dados informados.']);
             }
-        }catch(Exception $err){
+        } catch (Exception $err) {
 
             $conn->close();
             Response::send(200, ['Ocorreu um erro inesperado.']);
+        }
+    }
+
+    public static function read_data(string $email)
+    {
+
+        $query = "SELECT * FROM users WHERE email = ?;";
+
+        try {
+
+            $conn = new mysqli(Connection::$host, Connection::$user, Connection::$password, Connection::$database);
+            $execution = $conn->prepare($query);
+            $execution->bind_param('s', $email);
+            $execution->execute();
+            $result = $execution->get_result();
+            if ($result->num_rows > 0) {
+                $data = $result->fetch_assoc();
+
+                $conn->close();
+                Response::send(200, $data);
+            } else {
+                $conn->close();
+                Response::send(200, ['message' => 'Usuário não encontrado.']);
+            }
+        } catch (Exception $err) {
+            $conn->close();
+            Response::send(200, ['message' => $err->getMessage()]);
         }
     }
 }

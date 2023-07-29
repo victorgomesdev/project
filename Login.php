@@ -27,13 +27,13 @@ class Login
             $execution = $conn->prepare($query);
             $execution->bind_param('sssssssss', $user->get_data()['id'], $user->get_data()['name'], $user->get_data()['email'], $hashed_password, $user->get_data()['address'], $user->get_data()['phone'], $user->get_data()['age'], $user->get_data()['admin'], $user->get_data()['created_at']);
             $execution->execute(); // Se a conexão for estabelecida, executa a query
-            
+
             $conn->close();
-            Response::send(200, ['message'=> 'Usuário adicionado.']); // Envia a resposta ao cliente através da
+            Response::send(200, ['message' => 'Usuário adicionado.']); // Envia a resposta ao cliente através da
             // classe Response e seu método send()
         } catch (Exception $err) {
             $conn->close();
-            Response::send(200, ['Ocorreu um erro inesperado.']);
+            Response::send(200, ['message' => $err->getMessage()]);
         }
     }
 
