@@ -1,7 +1,4 @@
 <?php
-spl_autoload_register(function ($class) { // Função que carrega automaticamente qualquer classe instanciada
-    include($class . '.php');// sem precisar usar a fução include() várias vezes
-});
 
 class Request {// Classe usada para representar todas as requisições feitas à API
 

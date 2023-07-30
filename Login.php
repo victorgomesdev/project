@@ -1,9 +1,4 @@
 <?php
-
-spl_autoload_register(function ($class) { // Função que carrega automaticamente qualquer classe instanciada
-    include($class . '.php'); // sem precisar de vários 'includes'
-});
-
 class Login
 {
 
@@ -18,7 +13,7 @@ class Login
 
     public static function create(User $user) // Recebe um objeto do tipo User e insere seus dados no Banco de Dados
     {
-        $query = "INSERT INTO users(id,name,email,password,address, phone,age,admin, created_at) VALUES(?,?,?,?,?,?,?,?,?);";
+        $query = "INSERT INTO users(id, name, email, password, address, phone, age, admin, created_at) VALUES(?,?,?,?,?,?,?,?,?);";
         $hashed_password = password_hash($user->get_data()['password'], PASSWORD_DEFAULT); // Criptografa a senha
 
         try { // Tenta conectar ao Banco de Dados
