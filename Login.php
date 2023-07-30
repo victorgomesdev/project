@@ -33,7 +33,7 @@ class Login
             // classe Response e seu método send()
         } catch (Exception $err) {
             $conn->close();
-            Response::send(200, ['message' => $err->getMessage()]);
+            Response::send(200, ['message' => 'Ocorreu um erro.']);
         }
     }
 
